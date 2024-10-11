@@ -40,6 +40,7 @@ def download_pretrained_marl(overwrite=False):
             for chunk in tqdm(r.iter_content(chunk_size=1024*1024), unit="MB", total=3650):
                 if chunk:
                     f.write(chunk)
+    return download_path
 
 
 def download_pretrained_marh(overwrite=False):

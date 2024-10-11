@@ -1,0 +1,8 @@
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.pyz
+pretrained_models
+output_dir
+garment

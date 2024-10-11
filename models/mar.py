@@ -56,7 +56,7 @@ class MAR(nn.Module):
         # --------------------------------------------------------------------------
         # Class Embedding
         self.num_classes = class_num
-        self.class_emb = nn.Embedding(class_num, encoder_embed_dim)
+        self.class_emb = nn.Embedding(1000, encoder_embed_dim)
         self.label_drop_prob = label_drop_prob
         # Fake class embedding for CFG's unconditional generation
         self.fake_latent = nn.Parameter(torch.zeros(1, encoder_embed_dim))
@@ -183,7 +183,7 @@ class MAR(nn.Module):
             drop_latent_mask = drop_latent_mask.unsqueeze(-1).cuda().to(x.dtype)
             class_embedding = drop_latent_mask * self.fake_latent + (1 - drop_latent_mask) * class_embedding
 
-        x[:, :self.buffer_size] = class_embedding.unsqueeze(1)
+        x[:, :self.buffer_size] = class_embedding.unsqueeze(1) # ceu.shape = [bs, 1024] -> [bs, 1, 1024]
 
         # encoder position embedding
         x = x + self.encoder_pos_embed_learned
@@ -191,6 +191,7 @@ class MAR(nn.Module):
 
         # dropping
         x = x[(1-mask_with_buffer).nonzero(as_tuple=True)].reshape(bsz, -1, embed_dim)
+        # x.shape: [bsz, seq_len + buffer_size, embed_dim] -> [bsz, seq_len, embed_dim]
 
         # apply Transformer blocks
         if self.grad_checkpointing and not torch.jit.is_scripting():
@@ -278,7 +279,7 @@ class MAR(nn.Module):
                 class_embedding = self.class_emb(labels)
             else:
                 class_embedding = self.fake_latent.repeat(bsz, 1)
-            if not cfg == 1.0:
+            if cfg != 1.0:
                 tokens = torch.cat([tokens, tokens], dim=0)
                 class_embedding = torch.cat([class_embedding, self.fake_latent.repeat(bsz, 1)], dim=0)
                 mask = torch.cat([mask, mask], dim=0)
@@ -308,7 +309,7 @@ class MAR(nn.Module):
                 mask_to_pred = torch.cat([mask_to_pred, mask_to_pred], dim=0)
 
             # sample token latents for this step
-            z = z[mask_to_pred.nonzero(as_tuple=True)]
+            z = z[mask_to_pred.nonzero(as_tuple=True)] # z.shape: [bs, 768, 1024]
             # cfg schedule follow Muse
             if cfg_schedule == "linear":
                 cfg_iter = 1 + (cfg - 1) * (self.seq_len - mask_len[0]) / self.seq_len
