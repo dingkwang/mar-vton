@@ -1,0 +1,54 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "imagenet",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "main_mar.py",
+            "console": "integratedTerminal",
+            "args":[
+                "--num_images",
+                "1"
+            ]
+        },{
+            "name": "vton",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "main_mar_vton.py",
+            "console": "integratedTerminal",
+            "args":[
+                "--data_path",
+                "/opt/disk1/dwang/sci/DVTON/data/viton_for_mage/",
+                "--output_dir", "output_dir/mar_t1",
+                "--input_size", "256",
+                "--batch_size", "16",
+                "--epochs", "1"
+            ]
+        },
+        {
+            "name": "vton_test",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "main_mar_vton.py",
+            "console": "integratedTerminal",
+            "python": "/home/dwang/miniconda3/envs/var/bin/python",
+            "args":[
+                "--data_path", "/opt/disk1/dwang/sci/DVTON/data/viton_for_mage/",
+                "--output_dir", "output_dir/mar_t1",
+                "--input_size", "256",
+                "--batch_size", "1",
+                "--resume", "output_dir",
+                "--evaluate"
+            ]
+        },
+        {
+            "name": "demo",
+            "type": "debugpy",
+            "request": "launch",
+            "python": "/home/dwang/miniconda3/envs/var/bin/python",
+            "program": "demo.py",
+            "console": "integratedTerminal"
+        }
+    ]
+}

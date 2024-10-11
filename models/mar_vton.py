@@ -298,8 +298,11 @@ class MAR_VTON(nn.Module):
         return x
 
     def forward_mae_decoder(self, x, mask):
-
+        if torch.isnan(x).any():
+            print("x contains NaN values")
         x = self.decoder_embed(x)
+        if torch.isnan(x).any():
+            print("x contains NaN values")
         mask_with_buffer = torch.cat([torch.zeros(x.size(0), self.buffer_size, device=x.device), mask], dim=1)
 
         # pad mask tokens
